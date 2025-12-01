@@ -1,149 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juanchos - Admin Panel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flores&Abrazos - Admin Panel</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Segoe UI',sans-serif;
+      background:#f7d4e8; /* rosado suave */
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .login-container{
+      background:#fff;
+      padding:40px;
+      border-radius:20px;
+      box-shadow:0 20px 60px rgba(0,0,0,.15);
+      width:100%;max-width:450px;
+    }
+    .logo img{display:block;margin:0 auto 12px;width:40%;max-width:180px}
+    .logo label{display:block;font-size:clamp(1.8rem,5vw,2.4rem);font-weight:800;color:#d63384;text-align:center;letter-spacing:8px}
+    .logo p{text-align:center;color:#888;margin-bottom:24px}
+    .form-group{margin-bottom:20px}
+    label{display:block;margin-bottom:8px;color:#333;font-weight:600}
+    input{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;transition:border-color .3s}
+    input:focus{outline:none;border-color:#d63384}
+    .btn{width:100%;padding:14px;background:#d63384;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer}
+    .btn:hover{background:#c42d76}
+    .error-message{background:#ffebee;color:#c62828;padding:12px;border-radius:8px;margin-bottom:20px;display:none;text-align:center}
+    .loading{display:none;text-align:center;margin-top:20px}
+    .spinner{border:3px solid #f3f3f3;border-top:3px solid #d63384;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo" style="margin-bottom: 20px;">
-            <img src="img/logo-juanchos.png" alt="Logo Juanchos" class="logo-img" style="width: 40%;max-width: 180px;height: auto;display: block;margin: 0 auto 0px;">
-            <label class="logo-text" style="display: block;font-size: clamp(1.8rem, 5vw, 2.4rem); font-weight: 800; color: #000000;text-align: center;letter-spacing: 15px;margin-bottom: 0px">JUANCHOS</label>
-            <p>- Panel de Administración -</p>
-          </div>
-
-        <div id="errorMessage" class="error-message" style="background: #ffebee;color: #c62828;padding: 12px;border-radius: 8px;margin-bottom: 20px;display: none;text-align: center;"></div>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">Correo electrónico</label>
-                <input type="email" id="email" required placeholder="admin@juanchos.com">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" required placeholder="••••••••">
-            </div>
-
-            <button type="submit" class="btn" id="loginBtn">
-                <span>Iniciar Sesión</span>
-            </button>
-        </form>
-
-        <div class="loading" id="loading" style="display: none;text-align: center;margin-top: 20px;">
-            <div class="spinner" style="border: 3px solid #f3f3f3;border-top: 3px solid #ff9800;border-radius: 50%;width: 40px;height: 40px;animation: spin 1s linear infinite;margin: 0 auto;"></div>
-            <p style="margin-top: 10px; color: #666;">Iniciando sesión...</p>
-        </div>
+  <div class="login-container">
+    <div class="logo">
+      <img src="img/logo-flores-abrazos.png" alt="Logo Flores&Abrazos">
+      <label style="margin-bottom: 0px;">FLORES</label>
+      <label style="margin-bottom: 0px;">&</label>
+      <label style="margin-bottom: 0px;">ABRAZOS</label>
+      <p style="margin-bottom: 10px;">- Panel de Administración -</p>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <div id="errorMessage" class="error-message"></div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="email" required placeholder="admin@floresabrazos.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="password" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn">Iniciar Sesión</button>
+    </form>
 
-    <script src="js/auth.js"></script>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Iniciando sesión...</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWpypggysTY9OyZeuRRHHIF97hmMpa_64",
+      authDomain: "flores-peluches.firebaseapp.com",
+      projectId: "flores-peluches",
+      storageBucket: "flores-peluches.firebasestorage.app",
+      messagingSenderId: "1015060675242",
+      appId: "1:1015060675242:web:33ddbb687f74db656feed3",
+      measurementId: "G-2EQCTGS6QF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const errorMsg = document.getElementById('errorMessage');
+    const loading = document.getElementById('loading');
+
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.href = 'dashboard.html';
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      errorMsg.style.display = 'none';
+      loading.style.display = 'block';
+      signInWithEmailAndPassword(auth, email, pass)
+        .catch(err => {
+          const msg = {
+            'auth/user-not-found': 'Usuario no encontrado',
+            'auth/wrong-password': 'Contraseña incorrecta',
+            'auth/invalid-email': 'Email inválido'
+          }[err.code] || 'Error al iniciar sesión';
+          errorMsg.textContent = msg;
+          errorMsg.style.display = 'block';
+          loading.style.display = 'none';
+        });
+    });
+  </script>
 </body>
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #ff9800;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .login-container {
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        width: 90%;
-        max-width: 400px;
-    }
-
-    .logo {
-        text-align: center;
-    }
-
-    .logo h1 {
-        color: #ff9800;
-        font-size: 32px;
-        margin-bottom: 5px;
-    }
-
-    .logo p {
-        color: #666;
-        font-size: 14px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 8px;
-        color: #333;
-        font-weight: 600;
-    }
-
-    input {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-
-    input:focus {
-        outline: none;
-        border-color: #ff9800;
-    }
-
-    .btn {
-        width: 100%;
-        padding: 14px;
-        background: #000;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 1s;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn::before {
-        content: "";
-        position: absolute;
-        inset: 0; 
-        background: url("../img/fuego.png") center/cover no-repeat;
-        opacity: 0;
-        transition: opacity 1s;
-        z-index: 1;
-    }
-
-    .btn span {
-        position: relative;
-        z-index: 2;
-    }
-
-    .btn:hover::before {
-        opacity: 0.5;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-</style>
 </html>

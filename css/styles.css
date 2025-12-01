@@ -2,7 +2,7 @@
    1. VARIABLES & RESET
    =================================== */
 :root {
-  --primary: rgba(255, 152,0, 255); /* Tu naranja original */
+  --primary:#c42d76;/* Tu naranja original */
   --primary-dark: rgba(255, 255, 130, 0.9);
   --secondary: #1e1e1e;
   --bg: #fafafa;
@@ -44,6 +44,7 @@ body {
   color: #ffffff; /* Texto oscuro para contraste */
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: var(--shadow);
+  background-color: #c42d76;
 }
 
 .header h1 {
@@ -441,6 +442,7 @@ body {
   .header {
     flex-direction: column;
     gap: 1rem;
+    background-color: #c42d76;
   }
 
   .stats {
